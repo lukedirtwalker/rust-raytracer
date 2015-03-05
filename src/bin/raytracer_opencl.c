@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <CL/cl.h>
 
 #define MAX_SOURCE_SIZE (0x8000) // 16KB
@@ -13,6 +14,20 @@ char LOGBUF[LOG_SIZE];
 #define WIDTH 1024
 #define HEIGHT 768
 #define IMG_SIZE (WIDTH * HEIGHT)
+
+float clamp (float x) {
+    if (x < 0) return 0.0f;
+    else if (x > 1) return 1.0f;
+    return x;
+}
+
+long long to_int(float x) {
+    x = clamp(x);
+    x = powf(x, 1.0f / 2.2f);
+    x *= 255.0;
+    x += 0.5;
+    return x;
+}
 
 int main() {    
     FILE *fp;
@@ -43,7 +58,7 @@ int main() {
     // Get the default device for this platform
     cl_device_id device_id = NULL;
     cl_uint ret_num_devices;
-    err = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &device_id, &ret_num_devices);
+    err = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_ALL, 1, &device_id, &ret_num_devices);
     if (err != CL_SUCCESS) {
         printf("Error in get device id: %d\n", err);
         exit(1);
@@ -158,9 +173,10 @@ int main() {
     
     // Display the result to the screen
     printf("P3\n%d %d\n255\n", WIDTH, HEIGHT);
-    int i;
-    for(i = 0; i < IMG_SIZE; i++)
-        printf("%d %d %d ", host_x[i], host_y[i], host_z[i]);
+    int i, j;
+    for (i = 0; i < HEIGHT; ++i)
+        for (j = 0; j < WIDTH; ++j)
+            printf("%d %d %d ", to_int(host_x[i + j * HEIGHT]), to_int(host_y[i + j * HEIGHT]), to_int(host_z[i + j * HEIGHT]));
     
     // Clean up
 //     err = clFlush(command_queue);
