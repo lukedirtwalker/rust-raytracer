@@ -160,17 +160,21 @@ int main() {
     size_t global_item_size[2] = {HEIGHT, WIDTH};
     err = clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL,
                                  global_item_size, NULL, 0, NULL, NULL);
+    if (err != CL_SUCCESS) { printf("Error at line %d, err: %d", __LINE__, err); exit(1); }
     
     // Read the memory back
     err = clEnqueueReadBuffer(command_queue, opencl_x, CL_TRUE, 0,
                               IMG_SIZE * sizeof(float), host_x, 0, NULL, NULL);
+    if (err != CL_SUCCESS) { printf("Error at line %d, err: %d", __LINE__, err); exit(1); }
     err = clEnqueueReadBuffer(command_queue, opencl_y, CL_TRUE, 0,
                             IMG_SIZE * sizeof(float), host_y, 0, NULL, NULL);
+    if (err != CL_SUCCESS) { printf("Error at line %d, err: %d", __LINE__, err); exit(1); }
     err = clEnqueueReadBuffer(command_queue, opencl_z, CL_TRUE, 0,
                         IMG_SIZE * sizeof(float), host_z, 0, NULL, NULL);
-    
+    if (err != CL_SUCCESS) { printf("Error at line %d, err: %d", __LINE__, err); exit(1); }
     err = clFinish(command_queue);
-    
+    if (err != CL_SUCCESS) { printf("Error at line %d, err: %d", __LINE__, err); exit(1); }
+
     // Display the result to the screen
     printf("P3\n%d %d\n255\n", WIDTH, HEIGHT);
     int i, j;
